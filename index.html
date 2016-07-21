@@ -1,12 +1,57 @@
 <html>
 
 <head>
-	<title>API Example</title>
+	<title>KanDroid</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+	<!-- Google fonts -->
+	<!--	<link href="https://fonts.googleapis.com/css?family=Lato:100,300|Open+Sans:300,400" rel="stylesheet">-->
+	<!-- Font Awesome -->
+	<link rel="stylesheet" href="vendor/fontawesome/css/font-awesome.min.css">
+	<!-- Bootstrap CSS -->
+	<link rel="stylesheet" href="vendor/bootstrap/css/bootstrap.min.css" crossorigin="anonymous">
+
+	<!-- Custom Styles  -->
+	<link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+	<div class="container chat-container">
+		<section class="row chat-header-row">
+			<img class="img-responsive chat-logo" src="img/kandroid-logo.png" />
+			<h1>KanDroid</h1>
+			<h4>Self proclaimed funny Bot</h4>
+
+		</section>
+
+
+		<section class="row ">
+			<div class="chat-messages col-xs-10 col-xs-offset-1">
+
+			</div>
+		</section>
+
+		<section class="row chat-input-row">
+			<div class="input-group input-group-lg col-xs-10 col-xs-offset-1">
+				<!--<span class="input-group-addon">Enter Message</span>-->
+				<input type="text" id="input" placeholder="Say Hi" class="form-control"></input>
+				<span class="input-group-btn">
+        			<button class="btn btn-default" type="button">Send</button>
+      			</span>
+				<span class="input-group-btn">
+					<a class="btn btn-danger chat-mic" id="rec" data-toggle="button" aria-pressed="false" autocomplete="off" href="" style="padding-top: 15px" role="button">
+						<i class="fa fa-microphone fa-x"></i>
+					</a>
+				</span>
+			</div>
+		</section>
+	</div>
+
+	<script src="vendor/jquery/jquery.min.js"></script>
+	<script src="vendor/bootstrap/js/bootstrap.min.js" crossorigin="anonymous"></script>
 	<script type="text/javascript">
 		var accessToken = "0a863377b34143728d5b3323b14e8fc7";
 		var baseUrl = "https://api.api.ai/v1/";
+		var bSayHiDone = false;
 
 		$(document).ready(function () {
 			$("#input").keypress(function (event) {
@@ -18,6 +63,7 @@
 			$("#rec").click(function (event) {
 				switchRecognition();
 			});
+
 		});
 
 		var recognition;
@@ -25,13 +71,21 @@
 		function startRecognition() {
 			recognition = new webkitSpeechRecognition();
 			recognition.onstart = function (event) {
-				updateRec();
+
+				$msgListItem = "<ul class='list-group col-xs-8  col-xs-offset-4'><li class='list-group-item list-group-item-success'>" + "Listening..." + "</li></ul>";
+
+				$(".chat-messages").append($msgListItem);
+
+				updateRec("start");
 			};
 			recognition.onresult = function (event) {
 				var text = "";
 				for (var i = event.resultIndex; i < event.results.length; ++i) {
 					text += event.results[i][0].transcript;
 				}
+
+				$(".chat-messages ul:last-child").remove();
+
 				setInput(text);
 				stopRecognition();
 			};
@@ -47,7 +101,7 @@
 				recognition.stop();
 				recognition = null;
 			}
-			updateRec();
+			updateRec("stop");
 		}
 
 		function switchRecognition() {
@@ -60,15 +114,41 @@
 
 		function setInput(text) {
 			$("#input").val(text);
+			//Add to chat list on right
 			send();
 		}
 
-		function updateRec() {
-			$("#rec").text(recognition ? "Stop" : "Speak");
+		function updateRec(sEvent) {
+			switch (sEvent) {
+			case "start":
+				{
+
+
+					break;
+				}
+			case "stop":
+				{
+
+				}
+			}
+			//$("#rec").toggleClass("active");
+			//console.log($("#rec").hasClass("active"));
+			//$("#rec").toggleClass("btn-primary, btn-danger").toggleClass("");
+			//$("#rec").setClass("btn-danger");
+			//if($("#rec").hasClass("btn-primary")){
+			//$("#rec").toggleClass("btn-danger", "btn-primary");
+			//}
 		}
 
 		function send() {
+			if (!bSayHiDone) {
+				bSayHiDone = true;
+				$("#input").attr('placeholder', 'Type a message');
+			}
 			var text = $("#input").val();
+			setUserInput(text); //Adding the text to chat box
+			$("#input").val(""); //Clearing Input box
+
 			$.ajax({
 				type: "POST",
 				url: baseUrl + "query/",
@@ -85,54 +165,29 @@
 				success: function (data) {
 					var msg = new SpeechSynthesisUtterance(data.result.speech);
 					window.speechSynthesis.speak(msg);
-					setResponse(JSON.stringify(data, undefined, 2));
+
+					setResponse(data.result.speech);
 				},
 				error: function () {
 					setResponse("Internal Server Error");
 				}
 			});
-			setResponse("Loading...");
+			//setResponse("Loading...");
 		}
 
-		function setResponse(val) {
-			$("#response").text(val);
+		function setUserInput(msg) {
+			$msgListItem = "<ul class='list-group col-xs-8  col-xs-offset-4'><li class='list-group-item list-group-item-success'>" + msg + "</li></ul>";
+			$(".chat-messages").append($msgListItem);
+		};
+
+		function setResponse(msg) {
+			//$("#response").text(val);
+			$msgListItem = "<ul class='list-group col-xs-8'><li class='list-group-item'>" + msg + "</li></ul>";
+			$(".chat-messages").append($msgListItem);
+
 		}
 	</script>
-	<style type="text/css">
-		body {
-			width: 500px;
-			margin: 0 auto;
-			text-align: center;
-			margin-top: 20px;
-		}
-		
-		div {
-			position: absolute;
-		}
-		
-		input {
-			width: 400px;
-		}
-		
-		button {
-			width: 50px;
-		}
-		
-		textarea {
-			width: 100%;
-		}
-	</style>
-</head>
 
-<body>
-	<div classs="container">
-
-		<br>Response
-		<br>
-		<textarea id="response" cols="40" rows="20"></textarea>
-		<input id="input" type="text">
-		<button id="rec">Speak</button>
-	</div>
 </body>
 
 </html>

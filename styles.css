@@ -1,0 +1,45 @@
+html,
+body {
+	height: 100%;
+}
+
+body {
+	height: 100%;
+	font-family: 'Lato', sans-serif;
+	font-style: normal;
+	font-weight: 300;
+	/*    	padding-top: 110px;*/
+}
+
+.chat-header-row {
+	text-align: center;
+}
+
+.chat-logo {
+	display: block;
+	margin: 0 auto;
+}
+
+.chat-container {
+	position: relative;
+	min-height: 100%;
+	overflow: hidden;
+}
+
+.chat-messages {
+	border: 1px solid lightgray;
+	height: 60%;
+	margin-bottom: 80px;
+	padding-top: 20px;
+	border-radius: 5px;
+	overflow-y: scroll;
+}
+
+.chat-input-row {
+	position: absolute;
+	bottom: 0;
+	overflow: hidden;
+	/*	height: 10%;
+	*/
+	min-height: 80px
+}
